@@ -9,6 +9,8 @@
 #include <Common/Util.h>
 #include "AHRS.hpp"
 
+#include <boost/assign.hpp>
+
 #define G_SI 9.80665
 #define PI   3.14159
 
@@ -99,18 +101,29 @@ void imuLoop(AHRS* ahrs, ros::Publisher publisher)
 
     float gx, gy, gz;
     ahrs->getGyroscope(&gx, &gy, &gz);
-    msg.angular_velocity.x = gx;
-    msg.angular_velocity.y = gy;
+    msg.angular_velocity.x = gy;
+    msg.angular_velocity.y = -gx;
     msg.angular_velocity.z = gz;
     //TODO: Covariances
 
-
     float ax, ay, az;
     ahrs->getAccelerometer(&ax, &ay, &az);
-    msg.linear_acceleration.x = ax;
-    msg.linear_acceleration.y = ay;
+    msg.linear_acceleration.x = ay;
+    msg.linear_acceleration.y = -ax;
     msg.linear_acceleration.z = az;
     //TODO: Covariances
+
+msg.orientation_covariance = boost::assign::list_of(1e-3) (0) (0)
+                                                       (0) (1e-3)  (0)
+                                                       (0)   (0)  (1e-3);
+
+msg.angular_velocity_covariance = boost::assign::list_of(1e-3) (0) (0)
+                                                       (0) (1e-3)  (0)
+                                                       (0)   (0)  (1e-3);
+
+msg.linear_acceleration_covariance = boost::assign::list_of(1e-3) (0) (0)
+                                                       (0) (1e-3)  (0)
+                                                       (0)   (0)  (1e-3);
 
     /**
      * The publish() function is how you send messages. The parameter
@@ -129,7 +142,7 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  std::string sensor_name = "mpu";
+  std::string sensor_name = "lsm";
   // auto sensor_name = get_sensor_name(argc, argv);
 
   if (sensor_name.empty())
