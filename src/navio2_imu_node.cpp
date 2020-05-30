@@ -1,18 +1,13 @@
-#include "ros/ros.h"
-#include "sensor_msgs/Imu.h"
-#include "geometry_msgs/Quaternion.h"
+#include <ros/ros.h>
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/MagneticField.h>
 
-#include <sys/time.h>
-
-#include <Common/MPU9250.h>
-#include <Navio2/LSM9DS1.h>
-#include <Common/Util.h>
-#include "AHRS.hpp"
-
-#include <boost/assign.hpp>
-
-#define G_SI 9.80665
-#define PI   3.14159
+#include "Common/MPU9250.h"
+#include "Navio2/LSM9DS1.h"
+#include "Common/Util.h"
+#include <unistd.h>
+#include <string>
+#include <memory>
 
 std::unique_ptr <InertialSensor> get_inertial_sensor( std::string sensor_name)
 {
@@ -31,162 +26,98 @@ std::unique_ptr <InertialSensor> get_inertial_sensor( std::string sensor_name)
     }
 }
 
-void imuLoop(AHRS* ahrs, ros::Publisher publisher)
-{
-    /**
-     * This is a message object. You stuff it with data, and then publish it.
-     */
-    std::string frame_id = "imu_link";
-    sensor_msgs::Imu msg;
+int main(int argc, char **argv) {
 
-    ros::Time timestamp =  ros::Time::now();
+  std::string sensor_name;
+  double sensor_frequency = 10.0;
 
-    msg.header.stamp    = timestamp;
-    msg.header.frame_id = frame_id;
+  float ax, ay, az;
+  float gx, gy, gz;
+  float mx, my, mz;
 
-    struct timeval tv;
-    float dt;
-    // Timing data
+  //Initializes ROS, and sets up a node
+  ros::init(argc, argv, "navio2_imu_node");
+  ros::NodeHandle nh, private_nh("~");
+  ROS_INFO("Initializing %s node.", ros::this_node::getName().c_str());
 
-    static float maxdt;
-    static float mindt = 0.01;
-    static float dtsumm = 0;
-    static int isFirst = 1;
-    static unsigned long previoustime, currenttime;
+  private_nh.getParam("sensor_name", sensor_name);
+  private_nh.getParam("sensor_frequency", sensor_frequency);
 
-
-    //----------------------- Calculate delta time ----------------------------
-
-    gettimeofday(&tv,NULL);
-    previoustime = currenttime;
-    currenttime = 1000000 * tv.tv_sec + tv.tv_usec;
-    dt = (currenttime - previoustime) / 1000000.0;
-    if(dt < 1/1300.0) usleep((1/1300.0-dt)*1000000);
-    gettimeofday(&tv,NULL);
-    currenttime = 1000000 * tv.tv_sec + tv.tv_usec;
-    dt = (currenttime - previoustime) / 1000000.0;
-
-    //-------- Read raw measurements from the MPU and update AHRS --------------
-
-    ahrs->updateIMU(dt);
-
-
-    if (!isFirst)
+  /*
+  http://wiki.ros.org/roscpp_tutorials/Tutorials/Parameters
+  n.param("my_num", i, 42);
+  n.param<std::string>("my_param", s, "default_value");
+  if (n.getParam("my_param", s))
     {
-    	if (dt > maxdt) maxdt = dt;
-    	if (dt < mindt) mindt = dt;
+      ROS_INFO("Got param: %s", s.c_str());
     }
-    isFirst = 0;
-
-    //------------- Console and network output with a lowered rate ------------
-
-    dtsumm += dt;
-    if(dtsumm > 0.05)
+    else
     {
-        // Console output
-        //printf("ROLL: %+05.2f PITCH: %+05.2f YAW: %+05.2f PERIOD %.4fs RATE %dHz \n", roll, pitch, yaw * -1, dt, int(1/dt));
-
-        // Network output
-        //sock.output( ahrs->getW(), ahrs->getX(), ahrs->getY(), ahrs->getZ(), int(1/dt));
-
-        dtsumm = 0;
+      ROS_ERROR("Failed to get param 'my_param'");
     }
+  */
 
-
-    msg.orientation.x = ahrs->getX();
-    msg.orientation.y = ahrs->getY();
-    msg.orientation.z = ahrs->getZ();
-    msg.orientation.w = ahrs->getW();
-    //TODO: Covariances
-
-    float gx, gy, gz;
-    ahrs->getGyroscope(&gx, &gy, &gz);
-    msg.angular_velocity.x = gy;
-    msg.angular_velocity.y = -gx;
-    msg.angular_velocity.z = gz;
-    //TODO: Covariances
-
-    float ax, ay, az;
-    ahrs->getAccelerometer(&ax, &ay, &az);
-    msg.linear_acceleration.x = ay;
-    msg.linear_acceleration.y = -ax;
-    msg.linear_acceleration.z = az;
-    //TODO: Covariances
-
-msg.orientation_covariance = boost::assign::list_of(1e-3) (0) (0)
-                                                       (0) (1e-3)  (0)
-                                                       (0)   (0)  (1e-3);
-
-msg.angular_velocity_covariance = boost::assign::list_of(1e-3) (0) (0)
-                                                       (0) (1e-3)  (0)
-                                                       (0)   (0)  (1e-3);
-
-msg.linear_acceleration_covariance = boost::assign::list_of(1e-3) (0) (0)
-                                                       (0) (1e-3)  (0)
-                                                       (0)   (0)  (1e-3);
-
-    /**
-     * The publish() function is how you send messages. The parameter
-     * is the message object. The type of this object must agree with the type
-     * given as a template parameter to the advertise<>() call, as was done
-     * in the constructor above.
-     */
-    publisher.publish(msg);
-
-}
-
-int main(int argc, char **argv)
-{
+  ROS_INFO("Sensor name: %s - Sensor frequency %f", sensor_name.c_str(), sensor_frequency);
 
   if (check_apm()) {
     return 1;
   }
+  auto sensor = get_inertial_sensor(sensor_name);
 
-  std::string sensor_name = "lsm";
-  // auto sensor_name = get_sensor_name(argc, argv);
-
-  if (sensor_name.empty())
-    return EXIT_FAILURE;
-
-  auto imu = get_inertial_sensor(sensor_name);
-
-  if (!imu) {
+  if (!sensor) {
     printf("Wrong sensor name. Select: mpu or lsm\n");
     return EXIT_FAILURE;
   }
 
-  if (!imu->probe()) {
-    printf("Sensor not enable\n");
+  if (!sensor->probe()) {
+    printf("Sensor not enabled\n");
     return EXIT_FAILURE;
   }
+  sensor->initialize();
 
-  ros::init(argc, argv, "navio_imu_" + sensor_name +  "_node");
+  ros::Publisher imu_pub = private_nh.advertise<sensor_msgs::Imu>("imu", 10);
+  ros::Publisher mag_pub = private_nh.advertise<sensor_msgs::MagneticField>("mag", 10);
 
-  ros::NodeHandle n;
-  ros::Publisher imu_publisher = n.advertise<sensor_msgs::Imu>("navio_imu_" + sensor_name, 10);
-  ros::Rate loop_rate(100);
+  //Sets the loop to publish at a rate of <sensor_frequency> Hz
+  ros::Rate rate(sensor_frequency);
+  while(ros::ok()) {
 
-  auto ahrs = std::unique_ptr <AHRS>{new AHRS(move(imu)) };
-  //-------------------- Setup gyroscope offset -----------------------------
-  ahrs->setGyroOffset();
+    // ROS_INFO("The time is %f", ros::Time::now());
+    ros::Time current_time = ros::Time::now();
+    sensor->update();
+    sensor->read_accelerometer(&ax, &ay, &az);
+    sensor->read_gyroscope(&gx, &gy, &gz);
+    sensor->read_magnetometer(&mx, &my, &mz);
 
-  /**
-   * A count of how many messages we have sent. This is used to create
-   * a unique string for each message.
-   */
-  int count = 0;
+    // printf("Acc: %+7.3f %+7.3f %+7.3f  ", ax, ay, az);
+    // printf("Gyr: %+8.3f %+8.3f %+8.3f  ", gx, gy, gz);
+    // printf("Mag: %+7.3f %+7.3f %+7.3f\n", mx, my, mz);
 
+    sensor_msgs::Imu imu_msg;
+    imu_msg.header.stamp = current_time;
+    imu_msg.header.frame_id = '0';  // no frame
 
-  while (ros::ok())
-  {
+    imu_msg.angular_velocity.x = gx;
+    imu_msg.angular_velocity.y = gy;
+    imu_msg.angular_velocity.z = gz;
 
-    imuLoop(ahrs.get(), imu_publisher);
-    ros::spinOnce();
+    imu_msg.linear_acceleration.x = ax;
+    imu_msg.linear_acceleration.y = ay;
+    imu_msg.linear_acceleration.z = az;
 
-    loop_rate.sleep();
-    ++count;
+    sensor_msgs::MagneticField mag_msg;
+    mag_msg.header.stamp = current_time;
+    mag_msg.header.frame_id = '0';  // no frame
+
+    mag_msg.magnetic_field.x = mx;
+    mag_msg.magnetic_field.y = my;
+    mag_msg.magnetic_field.z = mz;
+
+    // Pub & sleep.
+    imu_pub.publish(imu_msg);
+    mag_pub.publish(mag_msg);
+    ros::spinOnce(); // the missing call
+    rate.sleep();
   }
-
-
   return 0;
 }

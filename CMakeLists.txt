@@ -234,11 +234,19 @@ add_library(navio2_ros
 	include/navio2_ros/Navio2/C++/Navio/Navio2/RCOutput_Navio2.cpp
 )
 
-# add_executable(navio2_imu_node src/navio2_imu_node.cpp)
-add_executable(navio2_imu_node src/navio2_imu_node.cpp
+# add_executable(navio2_ahrs_node src/navio2_ahrs_node.cpp)
+add_executable(navio2_ahrs_node src/navio2_ahrs_node.cpp
 		include/navio2_ros/Navio2/C++/Navio/Common/MPU9250.cpp
 		include/navio2_ros/AHRS/AHRS.cpp
 		include/navio2_ros/Navio2/C++/Navio/Common/Util.cpp
 		include/navio2_ros/Navio2/C++/Navio/Navio2/LSM9DS1.cpp)
 
+target_link_libraries(navio2_ahrs_node ${catkin_LIBRARIES})
+
+add_executable(navio2_imu_node src/navio2_imu_node.cpp
+		include/navio2_ros/Navio2/C++/Navio/Common/MPU9250.cpp
+		include/navio2_ros/Navio2/C++/Navio/Common/Util.cpp
+		include/navio2_ros/Navio2/C++/Navio/Navio2/LSM9DS1.cpp
+)
 target_link_libraries(navio2_imu_node ${catkin_LIBRARIES})
+

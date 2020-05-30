@@ -1,0 +1,7 @@
+<launch>
+
+<param name="sensor_name" type="str" value="lsm" />
+
+<node name="imu_node_0" pkg="navio2_ros" type="navio2_imu_node" />
+
+</launch>
