@@ -250,3 +250,9 @@ add_executable(navio2_imu_node src/navio2_imu_node.cpp
 )
 target_link_libraries(navio2_imu_node ${catkin_LIBRARIES})
 
+add_executable(navio2_gps_node src/navio2_gps_node.cpp
+                include/navio2_ros/Navio2/C++/Navio/Common/Ublox.cpp
+		include/navio2_ros/Navio2/C++/Navio/Common/Util.cpp
+)
+target_link_libraries(navio2_gps_node ${catkin_LIBRARIES})
+
