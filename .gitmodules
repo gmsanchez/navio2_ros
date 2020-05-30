@@ -1,3 +1,3 @@
-[submodule "Navio2"]
-	path = Navio2
+[submodule "include/navio2_ros/Navio2"]
+	path = include/navio2_ros/Navio2
 	url = https://github.com/emlid/Navio2.git
