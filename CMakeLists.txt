@@ -208,36 +208,37 @@ include_directories(
 
 include_directories(
 	include/navio2_ros
-	include/navio2_ros/Common
-	include/navio2_ros/Navio+
-	include/navio2_ros/Navio2
+	include/navio2_ros/Navio2/C++/Navio/
+	include/navio2_ros/Navio2/C++/Navio/Common
+	include/navio2_ros/Navio2/C++/Navio/Navio+
+	include/navio2_ros/Navio2/C++/Navio/Navio2
+	include/navio2_ros/AHRS
  	${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 add_library(navio2_ros
-        include/navio2_ros/Common/gpio.cpp
-	include/navio2_ros/Common/I2Cdev.cpp
-	include/navio2_ros/Common/MPU9250.cpp
-	include/navio2_ros/Common/MS5611.cpp
-	include/navio2_ros/Common/Ublox.cpp
-	include/navio2_ros/Common/Util.cpp
-	include/navio2_ros/Common/AHRS.cpp
-	
-	include/navio2_ros/Navio2/ADC_Navio2.cpp
-	include/navio2_ros/Navio2/LSM9DS1.cpp
-	include/navio2_ros/Navio2/RCInput_Navio2.cpp
-	include/navio2_ros/Navio2/RGBled.cpp
-	include/navio2_ros/Navio2/Led_Navio2.cpp
-	include/navio2_ros/Navio2/PWM.cpp
-	include/navio2_ros/Navio2/RCOutput_Navio2.cpp
+        include/navio2_ros/Navio2/C++/Navio/Common/gpio.cpp
+	include/navio2_ros/Navio2/C++/Navio/Common/I2Cdev.cpp
+	include/navio2_ros/Navio2/C++/Navio/Common/MPU9250.cpp
+	include/navio2_ros/Navio2/C++/Navio/Common/MS5611.cpp
+	include/navio2_ros/Navio2/C++/Navio/Common/Ublox.cpp
+	include/navio2_ros/Navio2/C++/Navio/Common/Util.cpp
+	include/navio2_ros/AHRS/AHRS.cpp
+	include/navio2_ros/Navio2/C++/Navio/Navio2/ADC_Navio2.cpp
+	include/navio2_ros/Navio2/C++/Navio/Navio2/LSM9DS1.cpp
+	include/navio2_ros/Navio2/C++/Navio/Navio2/RCInput_Navio2.cpp
+	include/navio2_ros/Navio2/C++/Navio/Navio2/RGBled.cpp
+	include/navio2_ros/Navio2/C++/Navio/Navio2/Led_Navio2.cpp
+	include/navio2_ros/Navio2/C++/Navio/Navio2/PWM.cpp
+	include/navio2_ros/Navio2/C++/Navio/Navio2/RCOutput_Navio2.cpp
 )
 
 # add_executable(navio2_imu_node src/navio2_imu_node.cpp)
 add_executable(navio2_imu_node src/navio2_imu_node.cpp
-		include/navio2_ros/Common/MPU9250.cpp
-		include/navio2_ros/Common/AHRS.cpp
-		include/navio2_ros/Common/Util.cpp
-		include/navio2_ros/Navio2/LSM9DS1.cpp)
+		include/navio2_ros/Navio2/C++/Navio/Common/MPU9250.cpp
+		include/navio2_ros/AHRS/AHRS.cpp
+		include/navio2_ros/Navio2/C++/Navio/Common/Util.cpp
+		include/navio2_ros/Navio2/C++/Navio/Navio2/LSM9DS1.cpp)
 
 target_link_libraries(navio2_imu_node ${catkin_LIBRARIES})
