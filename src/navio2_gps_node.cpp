@@ -7,11 +7,14 @@
 int main(int argc, char **argv) {
 
   double sensor_frequency = 1.0;
+  int solution_rate = 1000;
 
   //Initializes ROS, and sets up a node
   ros::init(argc, argv, "navio2_gps_node");
   ros::NodeHandle nh, private_nh("~");
   ROS_INFO("Initializing %s node.", ros::this_node::getName().c_str());
+
+  private_nh.getParam("sensor_frequency", sensor_frequency);
 
   if (check_apm()) {
     return 1;
@@ -29,13 +32,15 @@ int main(int argc, char **argv) {
   ros::Publisher gps_pub = private_nh.advertise<sensor_msgs::NavSatFix>("ublox", 10);
   //Sets the loop to publish at a rate of <sensor_frequency> Hz
   ros::Rate rate(sensor_frequency);
+  solution_rate = 1000/sensor_frequency;
+  ROS_INFO("Solution rate: %d", solution_rate);
 
   sensor_msgs::NavSatFix gps_msg;
   sensor_msgs::NavSatStatus gps_status;
 
   if (gps.testConnection()) {
     ROS_INFO("Ublox test OK.\n");
-    if (!gps.configureSolutionRate(1000))
+    if (!gps.configureSolutionRate(solution_rate))
     {
       ROS_ERROR("Setting new rate: FAILED.\n");
     }
