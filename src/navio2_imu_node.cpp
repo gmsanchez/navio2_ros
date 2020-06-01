@@ -28,7 +28,7 @@ std::unique_ptr <InertialSensor> get_inertial_sensor( std::string sensor_name)
 
 int main(int argc, char **argv) {
 
-  std::string sensor_name;
+  std::string sensor_name, frame_id;
   double sensor_frequency = 10.0;
 
   float ax, ay, az;
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
   private_nh.getParam("sensor_name", sensor_name);
   private_nh.getParam("sensor_frequency", sensor_frequency);
-
+  private_nh.param<std::string>("frame_id", frame_id, "imu_link");
   /*
   http://wiki.ros.org/roscpp_tutorials/Tutorials/Parameters
   n.param("my_num", i, 42);
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
 
     sensor_msgs::Imu imu_msg;
     imu_msg.header.stamp = current_time;
-    imu_msg.header.frame_id = "imu_link";
+    imu_msg.header.frame_id = frame_id;
 
     imu_msg.angular_velocity.x = gx;
     imu_msg.angular_velocity.y = gy;
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
 
     sensor_msgs::MagneticField mag_msg;
     mag_msg.header.stamp = current_time;
-    mag_msg.header.frame_id = "imu_link";
+    mag_msg.header.frame_id = frame_id;
 
     mag_msg.magnetic_field.x = mx;
     mag_msg.magnetic_field.y = my;

@@ -1,7 +1,10 @@
+<?xml version="1.0"?>
 <launch>
 
 <node name="gps_node" pkg="navio2_ros" type="navio2_gps_node" respawn="true" output="screen">
   <param name="sensor_frequency" value="5.0" /> <!-- choose 1.0 or 5.0 -->
+  <param name="frame_id" value="base_link" />
+  <remap from="gps_node/fix" to="gps/fix" />
 </node>
 
 </launch>

@@ -6,15 +6,17 @@
 
 int main(int argc, char **argv) {
 
+  std::string frame_id = "base_link";
   double sensor_frequency = 1.0;
   int solution_rate = 1000;
 
   //Initializes ROS, and sets up a node
-  ros::init(argc, argv, "navio2_gps_node");
+  ros::init(argc, argv, "gps");
   ros::NodeHandle nh, private_nh("~");
   ROS_INFO("Initializing %s node.", ros::this_node::getName().c_str());
 
   private_nh.getParam("sensor_frequency", sensor_frequency);
+  private_nh.getParam("frame_id", frame_id);
 
   if (check_apm()) {
     return 1;
@@ -29,7 +31,7 @@ int main(int argc, char **argv) {
   // create ublox class instance
   Ublox gps;
 
-  ros::Publisher gps_pub = private_nh.advertise<sensor_msgs::NavSatFix>("ublox", 10);
+  ros::Publisher gps_pub = private_nh.advertise<sensor_msgs::NavSatFix>("fix", 10);
   //Sets the loop to publish at a rate of <sensor_frequency> Hz
   ros::Rate rate(sensor_frequency);
   solution_rate = 1000/sensor_frequency;
@@ -55,7 +57,7 @@ int main(int argc, char **argv) {
         gps_msg.status = gps_status;
 
         gps_msg.header.stamp = current_time;
-        gps_msg.header.frame_id = "gps_link";
+        gps_msg.header.frame_id = frame_id;
 
         gps_msg.latitude = pos_data[2] / 10000000.0;
         gps_msg.longitude = pos_data[1] / 10000000.0;
