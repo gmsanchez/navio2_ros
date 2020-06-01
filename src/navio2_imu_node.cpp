@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   float mx, my, mz;
 
   //Initializes ROS, and sets up a node
-  ros::init(argc, argv, "navio2_imu_node");
+  ros::init(argc, argv, "imu");
   ros::NodeHandle nh, private_nh("~");
   ROS_INFO("Initializing %s node.", ros::this_node::getName().c_str());
 
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
   }
   sensor->initialize();
 
-  ros::Publisher imu_pub = private_nh.advertise<sensor_msgs::Imu>("imu", 10);
+  ros::Publisher imu_pub = private_nh.advertise<sensor_msgs::Imu>("data_raw", 10);
   ros::Publisher mag_pub = private_nh.advertise<sensor_msgs::MagneticField>("mag", 10);
 
   //Sets the loop to publish at a rate of <sensor_frequency> Hz
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
 
     sensor_msgs::Imu imu_msg;
     imu_msg.header.stamp = current_time;
-    imu_msg.header.frame_id = '0';  // no frame
+    imu_msg.header.frame_id = "imu_link";
 
     imu_msg.angular_velocity.x = gx;
     imu_msg.angular_velocity.y = gy;
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
 
     sensor_msgs::MagneticField mag_msg;
     mag_msg.header.stamp = current_time;
-    mag_msg.header.frame_id = '0';  // no frame
+    mag_msg.header.frame_id = "imu_link";
 
     mag_msg.magnetic_field.x = mx;
     mag_msg.magnetic_field.y = my;

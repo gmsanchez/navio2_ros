@@ -55,6 +55,7 @@ int main(int argc, char **argv) {
         gps_msg.status = gps_status;
 
         gps_msg.header.stamp = current_time;
+        gps_msg.header.frame_id = "gps_link";
 
         gps_msg.latitude = pos_data[2] / 10000000.0;
         gps_msg.longitude = pos_data[1] / 10000000.0;
