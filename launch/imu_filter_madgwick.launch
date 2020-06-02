@@ -14,7 +14,7 @@
   
   <!-- Filter raw gyro, accel and mag data into a usable orientation -->
   <node name="imu_filter" pkg="imu_filter_madgwick" type="imu_filter_node" >
-    <!-- <rosparam command="load" file="$(find skidbot)/config/imu_calibration.yaml" /> -->
+    <rosparam command="load" file="$(find navio2_ros)/config/imu_calibration.yaml" />
     <remap from="/imu/data_raw" to="/imu_lsm/data_raw" />
     <remap from="/imu/mag" to="/imu_lsm/mag" />
     <remap from="/imu/data" to="/imu/data" />

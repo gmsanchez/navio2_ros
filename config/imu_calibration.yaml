@@ -1,0 +1,4 @@
+use_mag: true
+mag_bias_x: -0.217923
+mag_bias_y: 13.6045
+mag_bias_z: -0.63857
