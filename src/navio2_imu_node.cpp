@@ -26,6 +26,25 @@ std::unique_ptr <InertialSensor> get_inertial_sensor( std::string sensor_name)
     }
 }
 
+void rotate_rep103(float &_ax, float &_ay, float &_az,
+                   float &_gx, float &_gy, float &_gz,
+                   float &_mx, float &_my, float &_mz)
+{
+  float replacement_acc, replacement_gyro;
+
+  replacement_acc = _ax;
+  _ax = -_ay;
+  _ay = -replacement_acc;
+
+  replacement_gyro = _gx;
+  _gx = -_gy;
+  _gy = -replacement_gyro;
+
+  _mx = -_mx;
+  _my = -_my;
+  _mz = -_mz;
+}
+
 int main(int argc, char **argv) {
 
   std::string sensor_name, frame_id;
@@ -88,6 +107,8 @@ int main(int argc, char **argv) {
     sensor->read_accelerometer(&ax, &ay, &az);
     sensor->read_gyroscope(&gx, &gy, &gz);
     sensor->read_magnetometer(&mx, &my, &mz);
+
+    rotate_rep103(ax, ay, az, gx, gy, gz, mx, my, mz);
 
     // printf("Acc: %+7.3f %+7.3f %+7.3f  ", ax, ay, az);
     // printf("Gyr: %+8.3f %+8.3f %+8.3f  ", gx, gy, gz);
