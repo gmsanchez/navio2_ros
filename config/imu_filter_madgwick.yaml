@@ -1,0 +1,15 @@
+world_frame: enu
+#fixed_frame: base_link
+orientation_stddev: 0.0
+gain: 0.75
+zeta: 0.0
+publish_tf: false 
+use_mag: true
+mag_bias_x: -3.18194
+mag_bias_y: 15.9507
+mag_bias_z: -5.91913
+
+# mag_bias_x: -5.06473
+# mag_bias_y: 14.3587
+# mag_bias_z: 1.65352
+
