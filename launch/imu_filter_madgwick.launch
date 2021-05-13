@@ -2,6 +2,7 @@
 <launch>
 
   <include file="$(find navio2_ros)/launch/imu_node.launch" />
+  <!-- <include file="$(find navio2_ros)/launch/imu_bias_remover.launch" /> -->
 
   <!-- Transforms imu data in imu_link frame to ENU data in base_link frame -->
   <!-- <node name="imu_data_transformer" pkg="imu_transformer" type="imu_transformer_node" >
@@ -11,16 +12,26 @@
     <remap from="imu_out/mag" to="imu/mag" />
     <param name="target_frame" value="base_link" />
   </node> -->
+
+  <node name="imu_complementary_filter" pkg="imu_complementary_filter" type="complementary_filter_node" >
+    <param name="use_mag" value="false" />
+    <remap from="/imu/data_raw" to="/imu_lsm/data_raw" />
+    <remap from="/imu/mag" to="/imu_lsm/mag" />
+    <remap from="/imu/data" to="/imu/data_complementary_filter" />
+  </node> -->
   
   <!-- Filter raw gyro, accel and mag data into a usable orientation -->
   <node name="imu_filter" pkg="imu_filter_madgwick" type="imu_filter_node" >
-    <rosparam command="load" file="$(find navio2_ros)/config/imu_calibration.yaml" />
-    <remap from="/imu/data_raw" to="/imu_lsm/data_raw" />
+    <!-- <rosparam command="load" file="$(find navio2_ros)/config/imu_calibration.yaml" /> -->
+    <rosparam command="load" file="$(find navio2_ros)/config/imu_filter_madgwick.yaml" />
+    <remap from="/imu/data_raw" to="/imu/data_complementary_filter" /> -->
+    <!-- <remap from="/imu/data_raw" to="/imu_lsm/data_raw" /> -->
     <remap from="/imu/mag" to="/imu_lsm/mag" />
-    <remap from="/imu/data" to="/imu/data" />
-    <param name="orientation_stddev" value="0.001" />
-    <param name="gain" value="0.01" />
+    <remap from="/imu/data" to="/imu/data_madgwick" />
+    <!-- <param name="orientation_stddev" value="0.0" />
+    <param name="gain" value="0.1" />
     <param name="zeta" value="0.001" />
-    <param name="publish_tf" value="false" />
+    <param name="publish_tf" value="false" /> -->
   </node>
+
 </launch>
