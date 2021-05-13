@@ -33,14 +33,15 @@ void rotate_rep103(float &_ax, float &_ay, float &_az,
   float replacement_acc, replacement_gyro;
 
   replacement_acc = _ax;
-  _ax = -_ay;
+  _ax = _ay;
   _ay = -replacement_acc;
 
   replacement_gyro = _gx;
-  _gx = -_gy;
+  _gx = _gy;
   _gy = -replacement_gyro;
 
-  _mx = -_mx;
+  // TODO: Check if this *really* is in ENU
+  _mx =  _mx;
   _my = -_my;
   _mz = -_mz;
 }
