@@ -3,6 +3,7 @@
 
 #include <Common/Ublox.h>
 #include <Common/Util.h>
+#include <cmath>
 
 int main(int argc, char **argv) {
 
@@ -30,7 +31,7 @@ int main(int argc, char **argv) {
 
   // create ublox class instance
   Ublox gps;
-
+  ROS_INFO("before publisher");
   ros::Publisher gps_pub = private_nh.advertise<sensor_msgs::NavSatFix>("fix", 10);
   //Sets the loop to publish at a rate of <sensor_frequency> Hz
   ros::Rate rate(sensor_frequency);
@@ -64,9 +65,9 @@ int main(int argc, char **argv) {
         gps_msg.altitude = pos_data[3] / 1000.0;
 
         // Fill in the diagonal
-        gps_msg.position_covariance[0] = pos_data[5] / 1000.0;
-        gps_msg.position_covariance[4] = pos_data[5] / 1000.0;
-        gps_msg.position_covariance[8] = pos_data[6] / 1000.0;
+        gps_msg.position_covariance[0] = pow(pos_data[5] / 1000.0, 2);
+        gps_msg.position_covariance[4] = pow(pos_data[5] / 1000.0, 2);
+        gps_msg.position_covariance[8] = pow(pos_data[6] / 1000.0, 2);
         gps_msg.position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
 
         gps_pub.publish(gps_msg);
