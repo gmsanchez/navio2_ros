@@ -27,7 +27,7 @@
     <remap from="/imu/data_raw" to="/imu/data_complementary_filter" /> -->
     <!-- <remap from="/imu/data_raw" to="/imu_lsm/data_raw" /> -->
     <remap from="/imu/mag" to="/imu_lsm/mag" />
-    <remap from="/imu/data" to="/imu/data_madgwick" />
+    <remap from="/imu/data" to="/imu/data" />
     <!-- <param name="orientation_stddev" value="0.0" />
     <param name="gain" value="0.1" />
     <param name="zeta" value="0.001" />

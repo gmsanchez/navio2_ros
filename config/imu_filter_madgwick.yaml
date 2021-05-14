@@ -1,7 +1,7 @@
 world_frame: enu
 #fixed_frame: base_link
 orientation_stddev: 0.0
-gain: 0.75
+gain: 0.5
 zeta: 0.0
 publish_tf: false 
 use_mag: true
