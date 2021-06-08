@@ -44,6 +44,13 @@ void rotate_rep103(float &_ax, float &_ay, float &_az,
   _mx =  _mx;
   _my = -_my;
   _mz = -_mz;
+
+  // Convert from 100 * G (or micro Tesla) to Tesla ;-)
+  // https://www.ros.org/reps/rep-0145.html
+  _mx *= 1e-6;
+  _my *= 1e-6;
+  _mz *= 1e-6;
+
 }
 
 int main(int argc, char **argv) {
